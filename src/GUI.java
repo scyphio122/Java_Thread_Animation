@@ -106,13 +106,43 @@ class Panel extends JPanel implements Runnable
     }
 }
 
+class Histogram extends JPanel
+{
+    BufferedImage frame[];
+    Histogram(int x, int y, int width, int height, BufferedImage image[])
+    {
+        this.setBounds(x, y, width, height);
+        frame = image;
+    }
 
+    public void paintComponent(Graphics g)
+    {
+        Graphics2D g2 = (Graphics2D)g;
+        int width = getWidth();
+        int height = getHeight();
+
+        /// X axis
+        g2.drawLine(5, 0, 5, height-6);
+        g2.drawLine(5, 0, 0, 10);
+        g2.drawLine(5, 0, 10, 10);
+
+        /// Y axis
+        g2.drawLine(5, height-6, width, height-6);
+        g2.drawLine(width, height-6, width - 10, height - 11);
+        g2.drawLine(width, height-6, width - 10, height - 1);
+
+
+    }
+
+
+}
 
 
 public class GUI
 {
     JFrame mainwindow;
     Panel gif_panel;
+    Histogram histogram;
     private void SetSize(int width, int height)
     {
         int screen_width = (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
@@ -133,7 +163,9 @@ public class GUI
         mainwindow.getContentPane().add(gif_panel);
         Thread gif_thread = new Thread(gif_panel);
         gif_thread.start();
-
+        histogram = new Histogram(500, 0, 400, 400);
+        mainwindow.getContentPane().add(histogram);
+        histogram.repaint();
         mainwindow.setVisible(true);
     }
 
