@@ -16,7 +16,7 @@ import java.io.File;
 /**
  * Created by Konrad on 2015-11-14.
  */
-class Panel extends JPanel
+class Panel extends JPanel implements Runnable
 {
     Image               gif;
     ImageReader         gif_reader;
@@ -29,14 +29,6 @@ class Panel extends JPanel
     Panel(String file_name)
     {
         this.setBounds(0, 0, 480, 640);
-       /* try
-        {
-            gif = ImageIO.read(new File(file_name));
-        } catch (Exception e)
-        {
-            System.out.println("Blad otwarcia gif'a");
-        }*/
-
         gif_reader = (ImageReader)ImageIO.getImageReadersByFormatName("gif").next();
         try
         {
@@ -44,7 +36,6 @@ class Panel extends JPanel
         }
         catch(Exception e)
         {
-
         }
         gif_reader.setInput(gif_input_stream, false);
         try
@@ -52,9 +43,11 @@ class Panel extends JPanel
             number_of_frames = gif_reader.getNumImages(true);
         }
         catch(Exception e)
-        {}
+        {
+
+        }
        // frames = new BufferedImage[number_of_frames];
-        timer = new Timer(100, new ActionListener()
+        /*timer = new Timer(100, new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -63,6 +56,24 @@ class Panel extends JPanel
             }
         });
         timer.start();
+        */
+
+    }
+
+    public void run()
+    {
+        do
+        {
+            repaint();
+            //notify();
+            try
+            {
+                Thread.sleep(100);
+            } catch (Exception e)
+            {
+                System.out.println("Blad usypiania watku gifa");
+            }
+        }while(true);
     }
 
     public void paintComponent(Graphics g)
@@ -88,20 +99,20 @@ class Panel extends JPanel
             {
                 current_frame_number = 0;
             }
-
         }
         catch(Exception e)
         {
-
         }
-
     }
 }
+
+
+
 
 public class GUI
 {
     JFrame mainwindow;
-    Panel panel;
+    Panel gif_panel;
     private void SetSize(int width, int height)
     {
         int screen_width = (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
@@ -118,8 +129,11 @@ public class GUI
         SetSize(1280, 1024);
         mainwindow.setLayout(null);
 
-        panel =  new Panel("loading.gif");
-        mainwindow.getContentPane().add(panel);
+        gif_panel =  new Panel("loading.gif");
+        mainwindow.getContentPane().add(gif_panel);
+        Thread gif_thread = new Thread(gif_panel);
+        gif_thread.start();
+
         mainwindow.setVisible(true);
     }
 
