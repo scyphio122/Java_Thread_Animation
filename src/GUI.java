@@ -28,10 +28,11 @@ class Panel extends JPanel implements Runnable
 
     Panel(Shared_Params params_to_update)
     {
-        this.setBounds(0, 0, 480, 640);
+        this.setBounds(0, 0, 1280, 1024);
 
         gif_reader = (ImageReader)ImageIO.getImageReadersByFormatName("gif").next();
         this.shared_params = params_to_update;
+        shared_params.histogram_data_red = new int[256];
         try
         {
             gif_input_stream = ImageIO.createImageInputStream(new File("color.gif"));
@@ -95,19 +96,39 @@ class Panel extends JPanel implements Runnable
             {
                 System.out.println("Blad watku gifa");
             }
-            //notify();
+
+            int width = 400;
+            int height = 400;
+
+            g2.setColor(new Color(238,238,238));
+            g2.clearRect(width, height, width, -height);
+
+            g2.setColor(Color.RED);
+            /// Y axis
+            g2.drawLine(width + 5, 0, width + 5, height-6);
+            g2.drawLine(width + 5, 0, width, 10);
+            g2.drawLine(width + 5, 0, width + 10, 10);
+
+            /// X axis
+            g2.drawLine(width + 5, height-6, 2*width, height-6);
+            g2.drawLine(2*width, height-6, 2*width - 10, height - 11);
+            g2.drawLine(2*width, height - 6, 2*width - 10, height - 1);
+
+            /// Draw histogram
+            for(int i=0; i<256; i++)
+            {
+                g2.drawRect(width + 5 + i, height-6, 1, -(shared_params.histogram_data_red[i]/200));
+            }
+           // notify();
         }
     }
 }
 
-class Histogram extends JPanel implements Runnable
+class Histogram implements Runnable
 {
-    int histogram_data_red[];
     Shared_Params shared_params;
     Histogram(int x, int y, int width, int height, Shared_Params updated_params)
     {
-        this.setBounds(x, y, width, height);
-        histogram_data_red = new int[256];
         this.shared_params = updated_params;
     }
 
@@ -115,20 +136,20 @@ class Histogram extends JPanel implements Runnable
     {
         for(int i=0; i< 256;i++)
         {
-            histogram_data_red[i] = 0;
+            shared_params.histogram_data_red[i] = 0;
         }
         for(int i=0; i<frame.getWidth(); i++)
         {
             for(int j=0; j<frame.getHeight(); j++)
             {
                 int data = ((frame.getRGB(i,j)>>16) & 0xFF);
-                histogram_data_red[data]++;
+                shared_params.histogram_data_red[data]++;
             }
         }
     }
 
 
-
+/*
     public void paintComponent(Graphics g)
     {
         Graphics2D g2 = (Graphics2D)g;
@@ -148,10 +169,10 @@ class Histogram extends JPanel implements Runnable
 
         for(int i=0; i<256; i++)
         {
-            g2.drawRect(i*2, height-6, 2, height - 6 - (histogram_data_red[i]/200));
+            g2.drawRect(i*2, height-6, 2, height - 6 - (shared_params.histogram_data_red[i]/200));
         }
 
-    }
+    }*/
 
     public void run()
     {
@@ -166,7 +187,7 @@ class Histogram extends JPanel implements Runnable
                }
                 try
                 {
-                    //wait();
+                   //wait();
                     Thread.sleep(100);
                 }catch (Exception e)
                 {
@@ -185,6 +206,7 @@ class Shared_Params
 {
    BufferedImage frame;
    int current_frame_number;
+    int histogram_data_red[];
 }
 
 public class GUI
@@ -214,11 +236,12 @@ public class GUI
 
         gif_panel =  new Panel(shared_params);
         mainwindow.getContentPane().add(gif_panel);
-       /* Thread gif_thread = new Thread(gif_panel);
-        gif_thread.start();*/
+        Thread gif_thread = new Thread(gif_panel);
+        gif_thread.start();
+
         histogram = new Histogram(500, 0, 512, 400, shared_params);
-        mainwindow.getContentPane().add(histogram);
-        histogram.repaint();
+       // mainwindow.getContentPane().add(histogram);
+        //histogram.repaint();
 
         Thread histogram_thread = new Thread(histogram);
         histogram_thread.start();
