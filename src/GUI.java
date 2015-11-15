@@ -33,6 +33,8 @@ class Panel extends JPanel implements Runnable
         gif_reader = (ImageReader)ImageIO.getImageReadersByFormatName("gif").next();
         this.shared_params = params_to_update;
         shared_params.histogram_data_red = new int[256];
+        shared_params.histogram_data_green = new int[256];
+        shared_params.histogram_data_blue = new int[256];
         try
         {
             gif_input_stream = ImageIO.createImageInputStream(new File("color.gif"));
@@ -97,53 +99,69 @@ class Panel extends JPanel implements Runnable
                 System.out.println("Blad watku gifa");
             }
 
-            int width = 265;
-            int height_r = 400;
+            int width = 800;
+            int gif_width = 350;
+            int height_r = 200;
             int height_g = 410;
             int height_b = 620;
 
             g2.setColor(new Color(238,238,238));
-            g2.fillRect(width, 0, width, 800);
+            g2.fillRect(gif_width, 0, width, 800);
 
             g2.setColor(Color.RED);
             /// Y axis
-            g2.drawLine(width + 5, 0, width + 5, height_r-6);
-            g2.drawLine(width + 5, 0, width, 10);
-            g2.drawLine(width + 5, 0, width + 10, 10);
+            g2.drawLine(gif_width + 5, 0, gif_width + 5, height_r-6);
+            g2.drawLine(gif_width + 5, 0, gif_width, 10);
+            g2.drawLine(gif_width + 5, 0, gif_width + 10, 10);
 
             /// X axis
-            g2.drawLine(width + 5, height_r-6, 2*width, height_r-6);
-            g2.drawLine(2*width, height_r-6, 2*width - 10, height_r - 11);
-            g2.drawLine(2*width, height_r - 6, 2*width - 10, height_r - 1);
+            g2.drawLine(gif_width + 5, height_r-6, gif_width + width, height_r-6);
+            g2.drawLine(gif_width + width, height_r-6, gif_width + width - 10, height_r - 11);
+            g2.drawLine(gif_width + width, height_r - 6, gif_width + width - 10, height_r - 1);
 
-           /* g2.setColor(Color.GREEN);
+            g2.setColor(Color.GREEN);
             /// Y axis
-            g2.drawLine(width + 5, height_r + 10, width + 5, height_g-6);
-            g2.drawLine(width + 5, height_r + 10, width, height_r + 20);
-            g2.drawLine(width + 5, height_r + 10, width + 10, height_r + 20);
+            g2.drawLine(gif_width + 5, height_r + 10, gif_width + 5, height_g-6);
+            g2.drawLine(gif_width + 5, height_r + 10, gif_width, height_r + 20);
+            g2.drawLine(gif_width + 5, height_r + 10, gif_width + 10, height_r + 20);
 
             /// X axis
-            g2.drawLine(width + 5, height_g-6, 2*width, height_g-6);
-            g2.drawLine(2*width, height_g-6, 2*width - 10, height_g - 11);
-            g2.drawLine(2*width, height_g - 6, 2*width - 10, height_g - 1);
+            g2.drawLine(gif_width + 5, height_g-6, gif_width + width, height_g-6);
+            g2.drawLine(gif_width + width, height_g-6, gif_width + width - 10, height_g - 11);
+            g2.drawLine(gif_width + width, height_g - 6, gif_width + width - 10, height_g - 1);
 
             g2.setColor(Color.BLUE);
             /// Y axis
-            g2.drawLine(width + 5, height_g + 10, width + 5, height_b-6);
-            g2.drawLine(width + 5, height_g + 10, width, height_g + 20);
-            g2.drawLine(width + 5, height_g + 10, width + 10, height_g + 20);
+            g2.drawLine(gif_width + 5, height_g + 10, gif_width + 5, height_b-6);
+            g2.drawLine(gif_width + 5, height_g + 10, gif_width, height_g + 20);
+            g2.drawLine(gif_width + 5, height_g + 10, gif_width + 10, height_g + 20);
 
             /// X axis
-            g2.drawLine(width + 5, height_b-6, 2*width, height_b-6);
-            g2.drawLine(2*width, height_b-6, 2*width - 10, height_b - 11);
-            g2.drawLine(2*width, height_b - 6, 2*width - 10, height_b - 1);
-*/
-            g2.setColor(Color.BLACK);
+            g2.drawLine(gif_width + 5, height_b-6, gif_width + width, height_b-6);
+            g2.drawLine(gif_width + width, height_b-6, gif_width + width - 10, height_b - 11);
+            g2.drawLine(gif_width + width, height_b - 6, gif_width + width - 10, height_b - 1);
+
+
             /// Draw histogram
+            g2.setColor(Color.RED);
             for(int i=0; i<256; i++)
             {
-                int size = -(shared_params.histogram_data_red[i]);
-                g2.drawRect(width + 5 + i, height_r-6, 1, size);
+                int size = -(shared_params.histogram_data_red[i]/200);
+                g2.drawRect(gif_width + 5 + i*3, height_r-6, 3, size);
+            }
+
+            g2.setColor(Color.GREEN);
+            for(int i=0; i<256; i++)
+            {
+                int size = -(shared_params.histogram_data_green[i]/200);
+                g2.drawRect(gif_width + 5 + i*3, height_g-6, 3, size);
+            }
+
+            g2.setColor(Color.BLUE);
+            for(int i=0; i<256; i++)
+            {
+                int size = -(shared_params.histogram_data_blue[i]/200);
+                g2.drawRect(gif_width + 5 + i*3, height_b-6, 3, size);
             }
             shared_params.notifyAll();
         }
@@ -163,13 +181,16 @@ class Histogram implements Runnable
         for(int i=0; i< 256;i++)
         {
             shared_params.histogram_data_red[i] = 0;
+            shared_params.histogram_data_blue[i] = 0;
+            shared_params.histogram_data_green[i] = 0;
         }
         for(int i=0; i<frame.getWidth(); i++)
         {
             for(int j=0; j<frame.getHeight(); j++)
             {
-                int data = ((frame.getRGB(i,j)>>16) & 0xFF);
-                shared_params.histogram_data_red[data]++;
+                shared_params.histogram_data_red[(frame.getRGB(i,j)>>16) & 0xFF]++;
+                shared_params.histogram_data_green[(frame.getRGB(i,j)>>8) & 0xFF]++;
+                shared_params.histogram_data_blue[frame.getRGB(i,j) & 0xFF]++;
             }
         }
     }
@@ -207,6 +228,8 @@ class Shared_Params
    BufferedImage frame;
    int current_frame_number;
     int histogram_data_red[];
+    int histogram_data_green[];
+    int histogram_data_blue[];
 }
 
 public class GUI
