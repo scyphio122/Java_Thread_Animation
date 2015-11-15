@@ -81,8 +81,9 @@ class Panel extends JPanel implements Runnable
             {
                 BufferedImage bgImage = gif_reader.read(shared_params.current_frame_number++);
                 shared_params.frame = bgImage;
-                RoundRectangle2D rectangle = new RoundRectangle2D.Float(0, 0, bgImage.getWidth(), (int) bgImage.getHeight(), 10, 10);
-                Rectangle2D place_to_fill = new Rectangle2D.Double(0, 0,
+                RoundRectangle2D rectangle = new RoundRectangle2D.Float(50, 150, bgImage.getWidth(), (int) bgImage
+                        .getHeight(), 10, 10);
+                Rectangle2D place_to_fill = new Rectangle2D.Double(50, 150,
                         bgImage.getWidth(), bgImage.getHeight());
                 TexturePaint texture_paint = new TexturePaint(bgImage, place_to_fill);
 
@@ -252,7 +253,7 @@ public class GUI
         mainwindow = new JFrame("Animacja");
 
         mainwindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        SetSize(1280, 1024);
+        SetSize(1280, 768);
         mainwindow.setLayout(null);
 
         shared_params = new Shared_Params();
