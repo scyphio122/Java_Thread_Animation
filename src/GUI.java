@@ -117,9 +117,10 @@ class Panel extends JPanel implements Runnable
             /// Draw histogram
             for(int i=0; i<256; i++)
             {
-                g2.drawRect(width + 5 + i, height-6, 1, -(shared_params.histogram_data_red[i]/200));
+
+                g2.drawRect(width + 5 + i, height-6, 1, -(shared_params.histogram_data_red[i]/120));
             }
-           // notify();
+            shared_params.notifyAll();
         }
     }
 }
@@ -183,15 +184,15 @@ class Histogram implements Runnable
                 if(shared_params.current_frame_number != 0)
                {
                     CalculateHistogram(shared_params.frame);
-                   //this.repaint();
                }
                 try
                 {
-                   //wait();
-                    Thread.sleep(100);
+                   shared_params.wait();
                 }catch (Exception e)
                 {
-                    System.out.println("Blad watku histogramu");
+                    System.out.println(e.getClass().getName());
+
+
                 }
             }
         }while(true);
@@ -233,17 +234,13 @@ public class GUI
         mainwindow.setLayout(null);
 
         shared_params = new Shared_Params();
-
+        histogram = new Histogram(500, 0, 512, 400, shared_params);
         gif_panel =  new Panel(shared_params);
+
         mainwindow.getContentPane().add(gif_panel);
         Thread gif_thread = new Thread(gif_panel);
-        gif_thread.start();
-
-        histogram = new Histogram(500, 0, 512, 400, shared_params);
-       // mainwindow.getContentPane().add(histogram);
-        //histogram.repaint();
-
         Thread histogram_thread = new Thread(histogram);
+        gif_thread.start();
         histogram_thread.start();
 
         mainwindow.setVisible(true);
