@@ -97,28 +97,53 @@ class Panel extends JPanel implements Runnable
                 System.out.println("Blad watku gifa");
             }
 
-            int width = 400;
-            int height = 400;
+            int width = 265;
+            int height_r = 400;
+            int height_g = 410;
+            int height_b = 620;
 
             g2.setColor(new Color(238,238,238));
-            g2.clearRect(width, height, width, -height);
+            g2.fillRect(width, 0, width, 800);
 
             g2.setColor(Color.RED);
             /// Y axis
-            g2.drawLine(width + 5, 0, width + 5, height-6);
+            g2.drawLine(width + 5, 0, width + 5, height_r-6);
             g2.drawLine(width + 5, 0, width, 10);
             g2.drawLine(width + 5, 0, width + 10, 10);
 
             /// X axis
-            g2.drawLine(width + 5, height-6, 2*width, height-6);
-            g2.drawLine(2*width, height-6, 2*width - 10, height - 11);
-            g2.drawLine(2*width, height - 6, 2*width - 10, height - 1);
+            g2.drawLine(width + 5, height_r-6, 2*width, height_r-6);
+            g2.drawLine(2*width, height_r-6, 2*width - 10, height_r - 11);
+            g2.drawLine(2*width, height_r - 6, 2*width - 10, height_r - 1);
 
+           /* g2.setColor(Color.GREEN);
+            /// Y axis
+            g2.drawLine(width + 5, height_r + 10, width + 5, height_g-6);
+            g2.drawLine(width + 5, height_r + 10, width, height_r + 20);
+            g2.drawLine(width + 5, height_r + 10, width + 10, height_r + 20);
+
+            /// X axis
+            g2.drawLine(width + 5, height_g-6, 2*width, height_g-6);
+            g2.drawLine(2*width, height_g-6, 2*width - 10, height_g - 11);
+            g2.drawLine(2*width, height_g - 6, 2*width - 10, height_g - 1);
+
+            g2.setColor(Color.BLUE);
+            /// Y axis
+            g2.drawLine(width + 5, height_g + 10, width + 5, height_b-6);
+            g2.drawLine(width + 5, height_g + 10, width, height_g + 20);
+            g2.drawLine(width + 5, height_g + 10, width + 10, height_g + 20);
+
+            /// X axis
+            g2.drawLine(width + 5, height_b-6, 2*width, height_b-6);
+            g2.drawLine(2*width, height_b-6, 2*width - 10, height_b - 11);
+            g2.drawLine(2*width, height_b - 6, 2*width - 10, height_b - 1);
+*/
+            g2.setColor(Color.BLACK);
             /// Draw histogram
             for(int i=0; i<256; i++)
             {
-
-                g2.drawRect(width + 5 + i, height-6, 1, -(shared_params.histogram_data_red[i]/120));
+                int size = -(shared_params.histogram_data_red[i]);
+                g2.drawRect(width + 5 + i, height_r-6, 1, size);
             }
             shared_params.notifyAll();
         }
@@ -128,7 +153,7 @@ class Panel extends JPanel implements Runnable
 class Histogram implements Runnable
 {
     Shared_Params shared_params;
-    Histogram(int x, int y, int width, int height, Shared_Params updated_params)
+    Histogram(Shared_Params updated_params)
     {
         this.shared_params = updated_params;
     }
@@ -148,32 +173,6 @@ class Histogram implements Runnable
             }
         }
     }
-
-
-/*
-    public void paintComponent(Graphics g)
-    {
-        Graphics2D g2 = (Graphics2D)g;
-        int width = getWidth();
-        int height = getHeight();
-
-        /// X axis
-        g2.drawLine(5, 0, 5, height-6);
-        g2.drawLine(5, 0, 0, 10);
-        g2.drawLine(5, 0, 10, 10);
-
-        /// Y axis
-        g2.drawLine(5, height-6, width, height-6);
-        g2.drawLine(width, height-6, width - 10, height - 11);
-        g2.drawLine(width, height - 6, width - 10, height - 1);
-
-
-        for(int i=0; i<256; i++)
-        {
-            g2.drawRect(i*2, height-6, 2, height - 6 - (shared_params.histogram_data_red[i]/200));
-        }
-
-    }*/
 
     public void run()
     {
@@ -234,7 +233,7 @@ public class GUI
         mainwindow.setLayout(null);
 
         shared_params = new Shared_Params();
-        histogram = new Histogram(500, 0, 512, 400, shared_params);
+        histogram = new Histogram(shared_params);
         gif_panel =  new Panel(shared_params);
 
         mainwindow.getContentPane().add(gif_panel);
