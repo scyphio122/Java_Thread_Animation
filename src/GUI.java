@@ -12,6 +12,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 
 /**
@@ -47,8 +48,6 @@ class Panel extends JPanel implements Runnable
         {
 
         }
-
-
     }
 
     public void run()
@@ -56,7 +55,6 @@ class Panel extends JPanel implements Runnable
         do
         {
             repaint();
-            notify();
             try
             {
                 Thread.sleep(100);
@@ -64,6 +62,7 @@ class Panel extends JPanel implements Runnable
             {
                 System.out.println("Blad usypiania watku gifa");
             }
+
         }while(true);
     }
 
@@ -71,16 +70,15 @@ class Panel extends JPanel implements Runnable
     {
 
         Graphics2D g2 = (Graphics2D)g;
-        BufferedImage bgImage;
+
        // g2.clearRect(0, 0, (int)this.getWidth(), (int)this.getHeight());
-        try
+        synchronized(shared_params)
         {
-            synchronized (shared_params)
+            try
             {
-                bgImage = gif_reader.read(shared_params.current_frame_number++);
+                BufferedImage bgImage = gif_reader.read(shared_params.current_frame_number++);
                 shared_params.frame = bgImage;
-                RoundRectangle2D rectangle = new RoundRectangle2D.Float(0, 0, (int) bgImage
-                        .getWidth(), (int) bgImage.getHeight(), 10, 10);
+                RoundRectangle2D rectangle = new RoundRectangle2D.Float(0, 0, bgImage.getWidth(), (int) bgImage.getHeight(), 10, 10);
                 Rectangle2D place_to_fill = new Rectangle2D.Double(0, 0,
                         bgImage.getWidth(), bgImage.getHeight());
                 TexturePaint texture_paint = new TexturePaint(bgImage, place_to_fill);
@@ -93,10 +91,11 @@ class Panel extends JPanel implements Runnable
                 {
                     shared_params.current_frame_number = 0;
                 }
+            } catch (Exception e)
+            {
+                System.out.println("Blad watku gifa");
             }
-        }
-        catch(Exception e)
-        {
+            //notify();
         }
     }
 }
@@ -122,7 +121,8 @@ class Histogram extends JPanel implements Runnable
         {
             for(int j=0; j<frame.getHeight(); j++)
             {
-                histogram_data_red[frame.getRGB(i,j>>16)]++;
+                int data = ((frame.getRGB(i,j)>>16) & 0xFF);
+                histogram_data_red[data]++;
             }
         }
     }
@@ -157,15 +157,21 @@ class Histogram extends JPanel implements Runnable
     {
         do
         {
-            try
+            synchronized(shared_params)
             {
-                wait();
-            }catch(Exception e)
-            {}
-            synchronized (shared_params)
-            {
-                CalculateHistogram(shared_params.frame);
-                repaint();
+                if(shared_params.current_frame_number != 0)
+               {
+                    CalculateHistogram(shared_params.frame);
+                   //this.repaint();
+               }
+                try
+                {
+                    //wait();
+                    Thread.sleep(100);
+                }catch (Exception e)
+                {
+                    System.out.println("Blad watku histogramu");
+                }
             }
         }while(true);
 
@@ -179,12 +185,6 @@ class Shared_Params
 {
    BufferedImage frame;
    int current_frame_number;
-
-    Shared_Params()
-    {
-        frame = new BufferedImage();
-    }
-
 }
 
 public class GUI
@@ -214,8 +214,8 @@ public class GUI
 
         gif_panel =  new Panel(shared_params);
         mainwindow.getContentPane().add(gif_panel);
-        Thread gif_thread = new Thread(gif_panel);
-        gif_thread.start();
+       /* Thread gif_thread = new Thread(gif_panel);
+        gif_thread.start();*/
         histogram = new Histogram(500, 0, 512, 400, shared_params);
         mainwindow.getContentPane().add(histogram);
         histogram.repaint();
