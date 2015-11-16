@@ -60,7 +60,7 @@ class Panel extends JPanel implements Runnable
             repaint();
             try
             {
-                Thread.sleep(100);
+                Thread.sleep(50);
             } catch (Exception e)
             {
                 System.out.println("Blad usypiania watku gifa");
@@ -243,9 +243,9 @@ public class GUI
     private void SetSize(int width, int height)
     {
         int screen_width = (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-        int screen_height = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+        int screen_height = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 
-        this.mainwindow.setBounds((screen_width - width) / 2, 0, width, height);
+        this.mainwindow.setBounds((screen_width - width) / 2 , (screen_height - height)/2, width, height);
     }
 
     public void CreateGUI()
@@ -255,7 +255,7 @@ public class GUI
         mainwindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         SetSize(1280, 768);
         mainwindow.setLayout(null);
-
+        mainwindow.setResizable(false);
         shared_params = new Shared_Params();
         histogram = new Histogram(shared_params);
         gif_panel =  new Panel(shared_params);
